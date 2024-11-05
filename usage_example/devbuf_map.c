@@ -92,7 +92,7 @@ static int get_device_buffer_details_filedes(int fd, devbuf_details *devbuf)
         devbuf->size = size;
 		devbuf->start_phys_addr = phys_addr;
     }
-    return 0;
+    return ret;
 }
 
 /*
@@ -120,7 +120,7 @@ static int get_device_buffer_details(int buf_num, devbuf_details *devbuf)
         close(fd);
     }
 
-    return 0;
+    return ret;
 }
 
 /*
@@ -186,7 +186,8 @@ static int devbuf_virt_to_phys(int       buf_num,
 * OUT: map_addr, devbuf
 * @param map_addr: Pointer to store the mapped address
 * @param devbuf: Pointer to the devbuf_details structure to store the buffer details
-*   
+* 
+* @return: 0 on success, -1 on failure  
 */
 int map_device_buffer(unsigned int buf_num, size_t size, void **map_addr, devbuf_details *devbuf)
 {
@@ -203,6 +204,12 @@ int map_device_buffer(unsigned int buf_num, size_t size, void **map_addr, devbuf
 
         printf("mapping device file %s\n", dev_path);
         addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+        if (addr == MAP_FAILED) {
+            perror("mmap");
+            return -1;
+        }
+
 		*map_addr = addr;
 		close(fd);
     }
@@ -213,12 +220,10 @@ int map_device_buffer(unsigned int buf_num, size_t size, void **map_addr, devbuf
 int main(int argc, char **argv)
 {
     char buffer[BUFSIZ];
-    int maps_fd;
 	void *map_addr;
 	size_t buf_size;
     devbuf_details devbuf;
     uint64_t phys_addr;
-
 
     if (argc < 2) {
         printf("Usage: %s size (in MB)\n", argv[0]);
@@ -227,11 +232,18 @@ int main(int argc, char **argv)
     buf_size = strtoull(argv[1], NULL, 0);
 	buf_size = buf_size << 20;
 
-	map_device_buffer(0, buf_size, &map_addr, &devbuf);
+	if (map_device_buffer(0, buf_size, &map_addr, &devbuf) == -1)
+        return EXIT_FAILURE;
 	printf("map_addr: %p\n", map_addr);
 
     devbuf_virt_to_phys(0, (map_addr + 4096), map_addr, 0, &phys_addr);
     printf("phys_addr: %lx\n", phys_addr);
+
+    /* unmap the buffer */
+     if (munmap(map_addr, buf_size) == -1){
+        perror("munmap");
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }

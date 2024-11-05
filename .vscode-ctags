@@ -1,0 +1,320 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AMBA_BUS_TYPE	u-dma-buf.c	3058;"	d	file:
+AMBA_BUS_TYPE	u-dma-buf.c	3060;"	d	file:
+ARCH	Makefile	/^ARCH      ?= $(shell uname -m | sed -e s\/arm.*\/arm\/ -e s\/aarch64.*\/arm64\/)$/;"	m
+CALL_UDMABUF_STATIC_DEVICE_CREATE	u-dma-buf.c	3186;"	d	file:
+CALL_UDMABUF_STATIC_DEVICE_RESERVE_MINOR_NUMBER	u-dma-buf.c	3192;"	d	file:
+CONFIG_INFO_ENABLE	u-dma-buf.c	157;"	d	file:
+CONFIG_MODULES	Makefile	/^CONFIG_MODULES ?= CONFIG_U_DMA_BUF=m$/;"	m
+CROSS_COMPILE	Makefile	/^   CROSS_COMPILE ?= aarch64-linux-gnu-$/;"	m
+CROSS_COMPILE	Makefile	/^   CROSS_COMPILE ?= arm-linux-gnueabihf-$/;"	m
+DEFINE_UDMABUF_OPTION	u-dma-buf.c	2275;"	d	file:
+DEFINE_UDMABUF_STATIC_DEVICE_PARAM	u-dma-buf.c	3181;"	d	file:
+DEFINE_U_DMA_BUF_IOCTL_FLAGS	u-dma-buf-ioctl.h	35;"	d
+DEFINE_U_DMA_BUF_IOCTL_FLAGS	u-dma-buf.c	1446;"	d	file:
+DEF_ATTR_SET	u-dma-buf.c	404;"	d	file:
+DEF_ATTR_SHOW	u-dma-buf.c	390;"	d	file:
+DEVICE_MAX_NUM	u-dma-buf.c	72;"	d	file:
+DEVICE_NAME_FORMAT	u-dma-buf.c	71;"	d	file:
+DMA_BUF	u-dma-buf.c	/^MODULE_IMPORT_NS(DMA_BUF);$/;"	v
+DMA_INFO_ENABLE	u-dma-buf.c	156;"	d	file:
+DRIVER_NAME	u-dma-buf.c	70;"	d	file:
+DRIVER_VERSION	u-dma-buf.c	69;"	d	file:
+GET_IOMMU_DOMAIN_TYPE	u-dma-buf.c	2008;"	d	file:
+HOST_ARCH	Makefile	/^HOST_ARCH ?= $(shell uname -m | sed -e s\/arm.*\/arm\/ -e s\/aarch64.*\/arm64\/)$/;"	m
+IN_KERNEL_FUNCTIONS	u-dma-buf.c	75;"	d	file:
+IOCTL_VERSION	u-dma-buf.c	76;"	d	file:
+IS_DMA_COHERENT	u-dma-buf.c	81;"	d	file:
+IS_DMA_COHERENT	u-dma-buf.c	84;"	d	file:
+IS_DMA_COHERENT	u-dma-buf.c	86;"	d	file:
+KERNEL_SRC_DIR	Makefile	/^  KERNEL_SRC_DIR := $(KERNEL_SRC)$/;"	m
+KERNEL_SRC_DIR	Makefile	/^  KERNEL_SRC_DIR ?= \/lib\/modules\/$(shell uname -r)\/build$/;"	m
+NO_ACTION	u-dma-buf.c	/^static inline int NO_ACTION(struct udmabuf_object* this){return 0;}$/;"	f	file:
+NUM_TO_STR	u-dma-buf.c	3541;"	d	file:
+PCIE_PORT_BUS_TYPE	u-dma-buf.c	3070;"	d	file:
+PCIE_PORT_BUS_TYPE	u-dma-buf.c	3072;"	d	file:
+PCI_BUS_TYPE	u-dma-buf.c	3064;"	d	file:
+PCI_BUS_TYPE	u-dma-buf.c	3066;"	d	file:
+QUIRK_MMAP_MODE_ALWAYS_OFF	u-dma-buf.c	178;"	d	file:
+QUIRK_MMAP_MODE_ALWAYS_ON	u-dma-buf.c	179;"	d	file:
+QUIRK_MMAP_MODE_AUTO	u-dma-buf.c	180;"	d	file:
+QUIRK_MMAP_MODE_PAGE	u-dma-buf.c	181;"	d	file:
+QUIRK_MMAP_MODE_PARM_DESC_DEFAULT	u-dma-buf.c	184;"	d	file:
+QUIRK_MMAP_MODE_PARM_DESC_DEFAULT	u-dma-buf.c	187;"	d	file:
+QUIRK_MMAP_MODE_PARM_DESC_USAGE	u-dma-buf.c	190;"	d	file:
+QUIRK_MMAP_MODE_PARM_DESC_USAGE	u-dma-buf.c	192;"	d	file:
+QUIRK_MMAP_MODE_UNDEFINED	u-dma-buf.c	177;"	d	file:
+SYNC_ALWAYS	u-dma-buf.c	270;"	d	file:
+SYNC_COMMAND_ARGMENT_MASK	u-dma-buf.c	302;"	d	file:
+SYNC_COMMAND_DIR_MASK	u-dma-buf.c	296;"	d	file:
+SYNC_COMMAND_DIR_SHIFT	u-dma-buf.c	297;"	d	file:
+SYNC_COMMAND_OFFSET_MASK	u-dma-buf.c	300;"	d	file:
+SYNC_COMMAND_OFFSET_SHIFT	u-dma-buf.c	301;"	d	file:
+SYNC_COMMAND_SIZE_MASK	u-dma-buf.c	298;"	d	file:
+SYNC_COMMAND_SIZE_SHIFT	u-dma-buf.c	299;"	d	file:
+SYNC_MODE_DMACOHERENT	u-dma-buf.c	266;"	d	file:
+SYNC_MODE_INVALID	u-dma-buf.c	263;"	d	file:
+SYNC_MODE_MASK	u-dma-buf.c	267;"	d	file:
+SYNC_MODE_MAX	u-dma-buf.c	269;"	d	file:
+SYNC_MODE_MIN	u-dma-buf.c	268;"	d	file:
+SYNC_MODE_NONCACHED	u-dma-buf.c	264;"	d	file:
+SYNC_MODE_WRITECOMBINE	u-dma-buf.c	265;"	d	file:
+TO_STR	u-dma-buf.c	3540;"	d	file:
+U64_MAX	u-dma-buf.c	132;"	d	file:
+UDMABUF_DEBUG	u-dma-buf.c	73;"	d	file:
+UDMABUF_EXPORT_DEBUG	u-dma-buf.c	255;"	d	file:
+UDMABUF_EXPORT_DEBUG	u-dma-buf.c	257;"	d	file:
+UDMABUF_VMA_DEBUG	u-dma-buf.c	249;"	d	file:
+UDMABUF_VMA_DEBUG	u-dma-buf.c	251;"	d	file:
+USE_DEV_GROUPS	u-dma-buf.c	90;"	d	file:
+USE_DEV_GROUPS	u-dma-buf.c	92;"	d	file:
+USE_DEV_PROPERTY	u-dma-buf.c	108;"	d	file:
+USE_DEV_PROPERTY	u-dma-buf.c	110;"	d	file:
+USE_DMA_BUF_EXPORT	u-dma-buf.c	77;"	d	file:
+USE_OF_DMA_CONFIG	u-dma-buf.c	102;"	d	file:
+USE_OF_DMA_CONFIG	u-dma-buf.c	104;"	d	file:
+USE_OF_RESERVED_MEM	u-dma-buf.c	96;"	d	file:
+USE_OF_RESERVED_MEM	u-dma-buf.c	98;"	d	file:
+USE_QUIRK_MMAP	u-dma-buf.c	74;"	d	file:
+USE_QUIRK_MMAP_PAGE	u-dma-buf.c	114;"	d	file:
+USE_QUIRK_MMAP_PAGE	u-dma-buf.c	117;"	d	file:
+U_DMA_BUF_IOCTL_EXPORT	u-dma-buf-ioctl.h	110;"	d
+U_DMA_BUF_IOCTL_EXPORT	u-dma-buf.c	1521;"	d	file:
+U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_CPU	u-dma-buf-ioctl.h	/^    U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_CPU    = 1,$/;"	e	enum:__anon4
+U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_CPU	u-dma-buf.c	/^    U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_CPU    = 1,$/;"	e	enum:__anon9	file:
+U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_DEVICE	u-dma-buf-ioctl.h	/^    U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_DEVICE = 3$/;"	e	enum:__anon4
+U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_DEVICE	u-dma-buf.c	/^    U_DMA_BUF_IOCTL_FLAGS_SYNC_CMD_FOR_DEVICE = 3$/;"	e	enum:__anon9	file:
+U_DMA_BUF_IOCTL_GET_DEV_INFO	u-dma-buf-ioctl.h	107;"	d
+U_DMA_BUF_IOCTL_GET_DEV_INFO	u-dma-buf.c	1518;"	d	file:
+U_DMA_BUF_IOCTL_GET_DMA_ADDR	u-dma-buf-ioctl.h	103;"	d
+U_DMA_BUF_IOCTL_GET_DMA_ADDR	u-dma-buf.c	1514;"	d	file:
+U_DMA_BUF_IOCTL_GET_DMA_ADDR	usage_example/devbuf_map.c	28;"	d	file:
+U_DMA_BUF_IOCTL_GET_DRV_INFO	u-dma-buf-ioctl.h	101;"	d
+U_DMA_BUF_IOCTL_GET_DRV_INFO	u-dma-buf.c	1512;"	d	file:
+U_DMA_BUF_IOCTL_GET_SIZE	u-dma-buf-ioctl.h	102;"	d
+U_DMA_BUF_IOCTL_GET_SIZE	u-dma-buf.c	1513;"	d	file:
+U_DMA_BUF_IOCTL_GET_SIZE	usage_example/devbuf_map.c	27;"	d	file:
+U_DMA_BUF_IOCTL_GET_SYNC	u-dma-buf-ioctl.h	108;"	d
+U_DMA_BUF_IOCTL_GET_SYNC	u-dma-buf.c	1519;"	d	file:
+U_DMA_BUF_IOCTL_GET_SYNC_OWNER	u-dma-buf-ioctl.h	104;"	d
+U_DMA_BUF_IOCTL_GET_SYNC_OWNER	u-dma-buf.c	1515;"	d	file:
+U_DMA_BUF_IOCTL_H	u-dma-buf-ioctl.h	32;"	d
+U_DMA_BUF_IOCTL_H	u-dma-buf.c	1443;"	d	file:
+U_DMA_BUF_IOCTL_MAGIC	u-dma-buf-ioctl.h	100;"	d
+U_DMA_BUF_IOCTL_MAGIC	u-dma-buf.c	1511;"	d	file:
+U_DMA_BUF_IOCTL_MAGIC	usage_example/devbuf_map.c	26;"	d	file:
+U_DMA_BUF_IOCTL_SET_SYNC	u-dma-buf-ioctl.h	109;"	d
+U_DMA_BUF_IOCTL_SET_SYNC	u-dma-buf.c	1520;"	d	file:
+U_DMA_BUF_IOCTL_SET_SYNC_FOR_CPU	u-dma-buf-ioctl.h	105;"	d
+U_DMA_BUF_IOCTL_SET_SYNC_FOR_CPU	u-dma-buf.c	1516;"	d	file:
+U_DMA_BUF_IOCTL_SET_SYNC_FOR_DEVICE	u-dma-buf-ioctl.h	106;"	d
+U_DMA_BUF_IOCTL_SET_SYNC_FOR_DEVICE	u-dma-buf.c	1517;"	d	file:
+VM_FAULT_RETURN_TYPE	u-dma-buf.c	/^typedef int        VM_FAULT_RETURN_TYPE;$/;"	t	file:
+VM_FAULT_RETURN_TYPE	u-dma-buf.c	/^typedef vm_fault_t VM_FAULT_RETURN_TYPE;$/;"	t	file:
+_LARGEFILE64_SOURCE	usage_example/devbuf_map.c	1;"	d	file:
+_PGPROT_DMACOHERENT	u-dma-buf.c	725;"	d	file:
+_PGPROT_DMACOHERENT	u-dma-buf.c	729;"	d	file:
+_PGPROT_DMACOHERENT	u-dma-buf.c	733;"	d	file:
+_PGPROT_NONCACHED	u-dma-buf.c	723;"	d	file:
+_PGPROT_NONCACHED	u-dma-buf.c	727;"	d	file:
+_PGPROT_NONCACHED	u-dma-buf.c	731;"	d	file:
+_PGPROT_WRITECOMBINE	u-dma-buf.c	724;"	d	file:
+_PGPROT_WRITECOMBINE	u-dma-buf.c	728;"	d	file:
+_PGPROT_WRITECOMBINE	u-dma-buf.c	732;"	d	file:
+_udmabuf_mmap_vma_fault	u-dma-buf.c	/^static inline VM_FAULT_RETURN_TYPE _udmabuf_mmap_vma_fault(struct vm_area_struct* vma, struct vm_fault* vmf)$/;"	f	file:
+addr	u-dma-buf-ioctl.h	/^    uint64_t addr;$/;"	m	struct:__anon2
+addr	u-dma-buf-ioctl.h	/^    uint64_t addr;$/;"	m	struct:__anon5
+addr	u-dma-buf.c	/^    uint64_t addr;$/;"	m	struct:__anon10	file:
+addr	u-dma-buf.c	/^    uint64_t addr;$/;"	m	struct:__anon7	file:
+alloc_size	u-dma-buf.c	/^    size_t               alloc_size;$/;"	m	struct:udmabuf_object	file:
+bind	u-dma-buf.c	/^static char*      bind = NULL;$/;"	v	file:
+buffer_size	u-dma-buf.c	/^    u64                  buffer_size;$/;"	m	struct:udmabuf_device_entry	file:
+cdev	u-dma-buf.c	/^    struct cdev          cdev;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::cdev	file:
+checked_open	usage_example/devbuf_map.c	/^static int checked_open(const char *pathname, int flags)$/;"	f	file:
+debug_export	u-dma-buf.c	/^    bool                 debug_export;$/;"	m	struct:udmabuf_object	file:
+debug_vma	u-dma-buf.c	/^    int                  debug_vma;$/;"	m	struct:udmabuf_object	file:
+dev	u-dma-buf.c	/^    struct device*       dev;$/;"	m	struct:udmabuf_device_entry	typeref:struct:udmabuf_device_entry::device	file:
+dev_bus_name	u-dma-buf.c	/^static inline const char* dev_bus_name(const struct device* dev)$/;"	f	file:
+devbuf_details	usage_example/devbuf_map.c	/^}devbuf_details;$/;"	t	typeref:struct:devbuf_details_t	file:
+devbuf_details_t	usage_example/devbuf_map.c	/^typedef struct devbuf_details_t{$/;"	s	file:
+devbuf_virt_to_phys	usage_example/devbuf_map.c	/^static int devbuf_virt_to_phys(int       buf_num, $/;"	f	file:
+device_name	u-dma-buf.c	/^    const char*          device_name;$/;"	m	struct:udmabuf_device_entry	file:
+device_number	u-dma-buf.c	/^    dev_t                device_number;$/;"	m	struct:udmabuf_object	file:
+dma_buf	u-dma-buf.c	/^    struct dma_buf*        dma_buf;$/;"	m	struct:udmabuf_export_entry	typeref:struct:udmabuf_export_entry::dma_buf	file:
+dma_dev	u-dma-buf.c	/^    struct device*       dma_dev;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::device	file:
+dma_map_sgtable	u-dma-buf.c	/^static inline int dma_map_sgtable(struct device* dev, struct sg_table* sgt, enum dma_data_direction direction, unsigned long attrs)$/;"	f	file:
+dma_mask_bit	u-dma-buf.c	/^static int        dma_mask_bit = 32;$/;"	v	file:
+dma_unmap_sgtable	u-dma-buf.c	/^static inline void dma_unmap_sgtable(struct device* dev, struct sg_table* sgt, enum dma_data_direction direction, unsigned long attrs)$/;"	f	file:
+export_dma_buf_list	u-dma-buf.c	/^    struct list_head     export_dma_buf_list;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::list_head	file:
+export_dma_buf_list_sem	u-dma-buf.c	/^    struct mutex         export_dma_buf_list_sem;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::mutex	file:
+fd	u-dma-buf-ioctl.h	/^    int      fd;$/;"	m	struct:__anon5
+fd	u-dma-buf.c	/^    int                    fd;$/;"	m	struct:udmabuf_export_entry	file:
+fd	u-dma-buf.c	/^    int      fd;$/;"	m	struct:__anon10	file:
+flags	u-dma-buf-ioctl.h	/^    uint64_t flags;$/;"	m	struct:__anon1
+flags	u-dma-buf-ioctl.h	/^    uint64_t flags;$/;"	m	struct:__anon2
+flags	u-dma-buf-ioctl.h	/^    uint64_t flags;$/;"	m	struct:__anon3
+flags	u-dma-buf-ioctl.h	/^    uint64_t flags;$/;"	m	struct:__anon5
+flags	u-dma-buf.c	/^    uint64_t flags;$/;"	m	struct:__anon10	file:
+flags	u-dma-buf.c	/^    uint64_t flags;$/;"	m	struct:__anon6	file:
+flags	u-dma-buf.c	/^    uint64_t flags;$/;"	m	struct:__anon7	file:
+flags	u-dma-buf.c	/^    uint64_t flags;$/;"	m	struct:__anon8	file:
+force_sync	u-dma-buf.c	/^    bool                   force_sync;  $/;"	m	struct:udmabuf_export_entry	file:
+get_device_buffer_details	usage_example/devbuf_map.c	/^static int get_device_buffer_details(int buf_num, devbuf_details *devbuf)$/;"	f	file:
+get_device_buffer_details_filedes	usage_example/devbuf_map.c	/^static int get_device_buffer_details_filedes(int fd, devbuf_details *devbuf)$/;"	f	file:
+get_iommu_domain_type	u-dma-buf.c	/^static  char* get_iommu_domain_type(struct device* dev)$/;"	f	file:
+info_enable	u-dma-buf.c	/^static int        info_enable = 1;$/;"	v	file:
+is_open	u-dma-buf.c	/^    bool                 is_open;$/;"	m	struct:udmabuf_object	file:
+list	u-dma-buf.c	/^    struct list_head       list;$/;"	m	struct:udmabuf_export_entry	typeref:struct:udmabuf_export_entry::list_head	file:
+list	u-dma-buf.c	/^    struct list_head     list;$/;"	m	struct:udmabuf_device_entry	typeref:struct:udmabuf_device_entry::list_head	file:
+main	usage_example/devbuf_map.c	/^int main(int argc, char **argv)$/;"	f
+map_device_buffer	usage_example/devbuf_map.c	/^int map_device_buffer(unsigned int buf_num, size_t size, void **map_addr, devbuf_details *devbuf)$/;"	f
+minor_number	u-dma-buf.c	/^    u32                  minor_number;$/;"	m	struct:udmabuf_device_entry	file:
+object	u-dma-buf.c	/^    struct udmabuf_object* object;$/;"	m	struct:udmabuf_export_entry	typeref:struct:udmabuf_export_entry::udmabuf_object	file:
+object_data	u-dma-buf.c	/^    struct udmabuf_object  object_data;$/;"	m	struct:udmabuf_export_entry	typeref:struct:udmabuf_export_entry::udmabuf_object	file:
+of_property_read_ulong	u-dma-buf.c	/^static int of_property_read_ulong(const struct device_node* node, const char* propname, u64* out_value)$/;"	f	file:
+of_reserved_mem	u-dma-buf.c	/^    bool                 of_reserved_mem;$/;"	m	struct:udmabuf_object	file:
+offset	u-dma-buf-ioctl.h	/^    uint64_t offset;$/;"	m	struct:__anon3
+offset	u-dma-buf-ioctl.h	/^    uint64_t offset;$/;"	m	struct:__anon5
+offset	u-dma-buf.c	/^    u64                    offset;$/;"	m	struct:udmabuf_export_entry	file:
+offset	u-dma-buf.c	/^    uint64_t offset;$/;"	m	struct:__anon10	file:
+offset	u-dma-buf.c	/^    uint64_t offset;$/;"	m	struct:__anon8	file:
+option	u-dma-buf.c	/^    u64                  option;$/;"	m	struct:udmabuf_device_entry	file:
+pagecount	u-dma-buf.c	/^    pgoff_t              pagecount;$/;"	m	struct:udmabuf_object	file:
+pages	u-dma-buf.c	/^    struct page**        pages;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::page	file:
+phys_addr	u-dma-buf.c	/^    dma_addr_t           phys_addr;$/;"	m	struct:udmabuf_object	file:
+post_remove	u-dma-buf.c	/^    void                 (*post_remove)(struct device* dev);$/;"	m	struct:udmabuf_device_entry	file:
+prep_remove	u-dma-buf.c	/^    void                 (*prep_remove)(struct device* dev);$/;"	m	struct:udmabuf_device_entry	file:
+quirk_mmap_mode	u-dma-buf.c	/^    int                  quirk_mmap_mode;$/;"	m	struct:udmabuf_object	file:
+quirk_mmap_mode	u-dma-buf.c	/^static int        quirk_mmap_mode = QUIRK_MMAP_MODE_ALWAYS_ON;$/;"	v	file:
+quirk_mmap_mode	u-dma-buf.c	/^static int        quirk_mmap_mode = QUIRK_MMAP_MODE_AUTO;$/;"	v	file:
+sem	u-dma-buf.c	/^    struct mutex         sem;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::mutex	file:
+size	u-dma-buf-ioctl.h	/^    uint64_t size;$/;"	m	struct:__anon2
+size	u-dma-buf-ioctl.h	/^    uint64_t size;$/;"	m	struct:__anon3
+size	u-dma-buf-ioctl.h	/^    uint64_t size;$/;"	m	struct:__anon5
+size	u-dma-buf.c	/^    size_t                 size;$/;"	m	struct:udmabuf_export_entry	file:
+size	u-dma-buf.c	/^    size_t               size;$/;"	m	struct:udmabuf_object	file:
+size	u-dma-buf.c	/^    uint64_t size;$/;"	m	struct:__anon10	file:
+size	u-dma-buf.c	/^    uint64_t size;$/;"	m	struct:__anon7	file:
+size	u-dma-buf.c	/^    uint64_t size;$/;"	m	struct:__anon8	file:
+size	usage_example/devbuf_map.c	/^	size_t    size;$/;"	m	struct:devbuf_details_t	file:
+start_phys_addr	usage_example/devbuf_map.c	/^	uint64_t  start_phys_addr;$/;"	m	struct:devbuf_details_t	file:
+sync_direction	u-dma-buf.c	/^    int                  sync_direction;$/;"	m	struct:udmabuf_object	file:
+sync_for_cpu	u-dma-buf.c	/^    u64                  sync_for_cpu;$/;"	m	struct:udmabuf_object	file:
+sync_for_device	u-dma-buf.c	/^    u64                  sync_for_device;$/;"	m	struct:udmabuf_object	file:
+sync_mode	u-dma-buf.c	/^    int                  sync_mode;$/;"	m	struct:udmabuf_object	file:
+sync_offset	u-dma-buf.c	/^    u64                  sync_offset;$/;"	m	struct:udmabuf_object	file:
+sync_owner	u-dma-buf.c	/^    bool                 sync_owner;$/;"	m	struct:udmabuf_object	file:
+sync_size	u-dma-buf.c	/^    size_t               sync_size;$/;"	m	struct:udmabuf_object	file:
+sys_dev	u-dma-buf.c	/^    struct device*       sys_dev;$/;"	m	struct:udmabuf_object	typeref:struct:udmabuf_object::device	file:
+u_dma_buf_available_bus_type_list	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_available_bus_type_list);$/;"	v
+u_dma_buf_available_bus_type_list	u-dma-buf.c	/^struct bus_type** u_dma_buf_available_bus_type_list = &udmabuf_available_bus_type_list[0];$/;"	v	typeref:struct:bus_type
+u_dma_buf_cleanup	u-dma-buf.c	/^static void u_dma_buf_cleanup(void)$/;"	f	file:
+u_dma_buf_device_create	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_device_create);$/;"	v
+u_dma_buf_device_create	u-dma-buf.c	/^struct device* u_dma_buf_device_create(const char* name, int id, size_t size, u64 option, struct device* parent)$/;"	f
+u_dma_buf_device_getmap	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_device_getmap);$/;"	v
+u_dma_buf_device_getmap	u-dma-buf.c	/^int u_dma_buf_device_getmap(struct device *dev, size_t* size, void** virt_addr, dma_addr_t* phys_addr)$/;"	f
+u_dma_buf_device_remove	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_device_remove);$/;"	v
+u_dma_buf_device_remove	u-dma-buf.c	/^int u_dma_buf_device_remove(struct device *dev)$/;"	f
+u_dma_buf_device_search	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_device_search);$/;"	v
+u_dma_buf_device_search	u-dma-buf.c	/^struct device* u_dma_buf_device_search(const char* name, int id)$/;"	f
+u_dma_buf_device_sync	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_device_sync);$/;"	v
+u_dma_buf_device_sync	u-dma-buf.c	/^int u_dma_buf_device_sync(struct device *dev, int command, int direction, u64 offset, ssize_t size)$/;"	f
+u_dma_buf_exit	u-dma-buf.c	/^module_exit(u_dma_buf_exit);$/;"	v
+u_dma_buf_exit	u-dma-buf.c	/^static void __exit u_dma_buf_exit(void)$/;"	f	file:
+u_dma_buf_find_available_bus_type	u-dma-buf.c	/^EXPORT_SYMBOL(u_dma_buf_find_available_bus_type);$/;"	v
+u_dma_buf_find_available_bus_type	u-dma-buf.c	/^struct bus_type* u_dma_buf_find_available_bus_type(char* name, int name_len)$/;"	f
+u_dma_buf_init	u-dma-buf.c	/^module_init(u_dma_buf_init);$/;"	v
+u_dma_buf_init	u-dma-buf.c	/^static int __init u_dma_buf_init(void)$/;"	f	file:
+u_dma_buf_ioctl_dev_info	u-dma-buf-ioctl.h	/^} u_dma_buf_ioctl_dev_info;$/;"	t	typeref:struct:__anon2
+u_dma_buf_ioctl_dev_info	u-dma-buf.c	/^} u_dma_buf_ioctl_dev_info;$/;"	t	typeref:struct:__anon7	file:
+u_dma_buf_ioctl_drv_info	u-dma-buf-ioctl.h	/^} u_dma_buf_ioctl_drv_info;$/;"	t	typeref:struct:__anon1
+u_dma_buf_ioctl_drv_info	u-dma-buf.c	/^} u_dma_buf_ioctl_drv_info;$/;"	t	typeref:struct:__anon6	file:
+u_dma_buf_ioctl_export_args	u-dma-buf-ioctl.h	/^} u_dma_buf_ioctl_export_args;$/;"	t	typeref:struct:__anon5
+u_dma_buf_ioctl_export_args	u-dma-buf.c	/^} u_dma_buf_ioctl_export_args;$/;"	t	typeref:struct:__anon10	file:
+u_dma_buf_ioctl_sync_args	u-dma-buf-ioctl.h	/^} u_dma_buf_ioctl_sync_args;$/;"	t	typeref:struct:__anon3
+u_dma_buf_ioctl_sync_args	u-dma-buf.c	/^} u_dma_buf_ioctl_sync_args;$/;"	t	typeref:struct:__anon8	file:
+udmabuf_attr_group	u-dma-buf.c	/^static struct attribute_group udmabuf_attr_group = {$/;"	v	typeref:struct:attribute_group	file:
+udmabuf_attr_groups	u-dma-buf.c	/^static const struct attribute_group* udmabuf_attr_groups[] = {$/;"	v	typeref:struct:attribute_group	file:
+udmabuf_attrs	u-dma-buf.c	/^static struct attribute* udmabuf_attrs[udmabuf_device_attrs_size] = {$/;"	v	typeref:struct:attribute	file:
+udmabuf_available_bus_type_list	u-dma-buf.c	/^static struct bus_type* udmabuf_available_bus_type_list[] = {$/;"	v	typeref:struct:bus_type	file:
+udmabuf_check_quirk_mmap_mode	u-dma-buf.c	/^static inline bool udmabuf_check_quirk_mmap_mode(int value)$/;"	f	file:
+udmabuf_child_device_create	u-dma-buf.c	/^static int udmabuf_child_device_create(const char* name, int id, unsigned int size, u64 option, struct device* parent)$/;"	f	file:
+udmabuf_child_device_delete	u-dma-buf.c	/^static void udmabuf_child_device_delete(struct device* dev)$/;"	f	file:
+udmabuf_device_attrs	u-dma-buf.c	/^static struct device_attribute udmabuf_device_attrs[] = {$/;"	v	typeref:struct:device_attribute	file:
+udmabuf_device_attrs_size	u-dma-buf.c	488;"	d	file:
+udmabuf_device_entry	u-dma-buf.c	/^struct udmabuf_device_entry {$/;"	s	file:
+udmabuf_device_file_ioctl	u-dma-buf.c	/^static long udmabuf_device_file_ioctl(struct file* file, unsigned int cmd, unsigned long arg)$/;"	f	file:
+udmabuf_device_file_llseek	u-dma-buf.c	/^static loff_t udmabuf_device_file_llseek(struct file* file, loff_t offset, int whence)$/;"	f	file:
+udmabuf_device_file_mmap	u-dma-buf.c	/^static int udmabuf_device_file_mmap(struct file *file, struct vm_area_struct* vma)$/;"	f	file:
+udmabuf_device_file_open	u-dma-buf.c	/^static int udmabuf_device_file_open(struct inode *inode, struct file *file)$/;"	f	file:
+udmabuf_device_file_ops	u-dma-buf.c	/^static const struct file_operations udmabuf_device_file_ops = {$/;"	v	typeref:struct:file_operations	file:
+udmabuf_device_file_read	u-dma-buf.c	/^static ssize_t udmabuf_device_file_read(struct file* file, char __user* buff, size_t count, loff_t* ppos)$/;"	f	file:
+udmabuf_device_file_release	u-dma-buf.c	/^static int udmabuf_device_file_release(struct inode *inode, struct file *file)$/;"	f	file:
+udmabuf_device_file_write	u-dma-buf.c	/^static ssize_t udmabuf_device_file_write(struct file* file, const char __user* buff, size_t count, loff_t* ppos)$/;"	f	file:
+udmabuf_device_list	u-dma-buf.c	/^static struct list_head udmabuf_device_list;$/;"	v	typeref:struct:list_head	file:
+udmabuf_device_list_cleanup	u-dma-buf.c	/^static void udmabuf_device_list_cleanup(void)$/;"	f	file:
+udmabuf_device_list_create_entry	u-dma-buf.c	/^static struct udmabuf_device_entry* udmabuf_device_list_create_entry(struct device *dev, const char* name, int id, unsigned int size, u64 option, void (*prep_remove)(struct device*), void (*post_remove)(struct device*))$/;"	f	file:
+udmabuf_device_list_delete_entry	u-dma-buf.c	/^static void udmabuf_device_list_delete_entry(struct udmabuf_device_entry* entry)$/;"	f	file:
+udmabuf_device_list_remove_entry	u-dma-buf.c	/^static void udmabuf_device_list_remove_entry(struct udmabuf_device_entry* entry)$/;"	f	file:
+udmabuf_device_list_search	u-dma-buf.c	/^static struct udmabuf_device_entry* udmabuf_device_list_search(struct device *dev, const char* name, int id)$/;"	f	file:
+udmabuf_device_list_sem	u-dma-buf.c	/^static struct mutex     udmabuf_device_list_sem;$/;"	v	typeref:struct:mutex	file:
+udmabuf_device_number	u-dma-buf.c	/^static dev_t      udmabuf_device_number = 0;$/;"	v	file:
+udmabuf_export_begin_cpu	u-dma-buf.c	/^static int udmabuf_export_begin_cpu(struct dma_buf* dma_buf, enum dma_data_direction direction)$/;"	f	file:
+udmabuf_export_create_entry	u-dma-buf.c	/^static struct udmabuf_export_entry* udmabuf_export_create_entry($/;"	f	file:
+udmabuf_export_dma_buf_map	u-dma-buf.c	/^static struct sg_table *udmabuf_export_dma_buf_map(struct dma_buf_attachment* attachment,$/;"	f	file:
+udmabuf_export_dma_buf_unmap	u-dma-buf.c	/^static void udmabuf_export_dma_buf_unmap(struct dma_buf_attachment* attachment,$/;"	f	file:
+udmabuf_export_end_cpu	u-dma-buf.c	/^static int udmabuf_export_end_cpu(struct dma_buf* dma_buf, enum dma_data_direction direction)$/;"	f	file:
+udmabuf_export_entry	u-dma-buf.c	/^struct udmabuf_export_entry {$/;"	s	file:
+udmabuf_export_kmap	u-dma-buf.c	/^static void* udmabuf_export_kmap(struct dma_buf* dma_buf, unsigned long page)$/;"	f	file:
+udmabuf_export_mmap	u-dma-buf.c	/^static int udmabuf_export_mmap(struct dma_buf* dma_buf, struct vm_area_struct* vma)$/;"	f	file:
+udmabuf_export_ops	u-dma-buf.c	/^static const struct dma_buf_ops udmabuf_export_ops = {$/;"	v	typeref:struct:dma_buf_ops	file:
+udmabuf_export_release	u-dma-buf.c	/^static void udmabuf_export_release(struct dma_buf *dma_buf)$/;"	f	file:
+udmabuf_find_available_bus_type	u-dma-buf.c	/^static struct bus_type* udmabuf_find_available_bus_type(char* name, int name_len)$/;"	f	file:
+udmabuf_get_device_name_property	u-dma-buf.c	/^static int  udmabuf_get_device_name_property(struct device *dev, const char** name, bool lock)$/;"	f	file:
+udmabuf_get_minor_number_property	u-dma-buf.c	/^static int  udmabuf_get_minor_number_property(struct device *dev, u32* value, bool lock)$/;"	f	file:
+udmabuf_get_option_property	u-dma-buf.c	/^static int  udmabuf_get_option_property(struct device *dev, u64* value, bool lock)$/;"	f	file:
+udmabuf_get_quirk_mmap_property	u-dma-buf.c	/^static int  udmabuf_get_quirk_mmap_property(struct device *dev, int* value, bool lock)$/;"	f	file:
+udmabuf_get_size_property	u-dma-buf.c	/^static int  udmabuf_get_size_property(struct device *dev, u64* value, bool lock)$/;"	f	file:
+udmabuf_mmap_vm_ops	u-dma-buf.c	/^static const struct vm_operations_struct udmabuf_mmap_vm_ops = {$/;"	v	typeref:struct:vm_operations_struct	file:
+udmabuf_mmap_vma_close	u-dma-buf.c	/^static void udmabuf_mmap_vma_close(struct vm_area_struct* vma)$/;"	f	file:
+udmabuf_mmap_vma_fault	u-dma-buf.c	/^static VM_FAULT_RETURN_TYPE udmabuf_mmap_vma_fault(struct vm_area_struct* vma, struct vm_fault* vmf)$/;"	f	file:
+udmabuf_mmap_vma_fault	u-dma-buf.c	/^static VM_FAULT_RETURN_TYPE udmabuf_mmap_vma_fault(struct vm_fault* vmf)$/;"	f	file:
+udmabuf_mmap_vma_open	u-dma-buf.c	/^static void udmabuf_mmap_vma_open(struct vm_area_struct* vma)$/;"	f	file:
+udmabuf_object	u-dma-buf.c	/^struct udmabuf_object {$/;"	s	file:
+udmabuf_object_create	u-dma-buf.c	/^static struct udmabuf_object* udmabuf_object_create(const char* name, struct device* parent, int minor)$/;"	f	file:
+udmabuf_object_destroy	u-dma-buf.c	/^static int udmabuf_object_destroy(struct udmabuf_object* this)$/;"	f	file:
+udmabuf_object_info	u-dma-buf.c	/^static void udmabuf_object_info(struct udmabuf_object* this)$/;"	f	file:
+udmabuf_object_mmap	u-dma-buf.c	/^static int udmabuf_object_mmap(struct udmabuf_object* this, struct vm_area_struct* vma, bool force_sync)$/;"	f	file:
+udmabuf_object_setup	u-dma-buf.c	/^static int udmabuf_object_setup(struct udmabuf_object* this)$/;"	f	file:
+udmabuf_of_match	u-dma-buf.c	/^static struct of_device_id udmabuf_of_match[] = {$/;"	v	typeref:struct:of_device_id	file:
+udmabuf_platform_device_create	u-dma-buf.c	/^static int udmabuf_platform_device_create(const char* name, int id, unsigned int size, u64 option)$/;"	f	file:
+udmabuf_platform_device_del	u-dma-buf.c	/^static void udmabuf_platform_device_del(struct device* dev)$/;"	f	file:
+udmabuf_platform_device_probe	u-dma-buf.c	/^static int udmabuf_platform_device_probe(struct device *dev)$/;"	f	file:
+udmabuf_platform_device_put	u-dma-buf.c	/^static void udmabuf_platform_device_put(struct device* dev)$/;"	f	file:
+udmabuf_platform_device_remove	u-dma-buf.c	/^static int udmabuf_platform_device_remove(struct device *dev, struct udmabuf_object *obj)$/;"	f	file:
+udmabuf_platform_driver	u-dma-buf.c	/^static struct platform_driver udmabuf_platform_driver = {$/;"	v	typeref:struct:platform_driver	file:
+udmabuf_platform_driver_probe	u-dma-buf.c	/^static int udmabuf_platform_driver_probe(struct platform_device *pdev)$/;"	f	file:
+udmabuf_platform_driver_registerd	u-dma-buf.c	/^static bool udmabuf_platform_driver_registerd = false;$/;"	v	file:
+udmabuf_platform_driver_remove	u-dma-buf.c	/^static int udmabuf_platform_driver_remove(struct platform_device *pdev)$/;"	f	file:
+udmabuf_quirk_mmap_enable	u-dma-buf.c	/^static bool udmabuf_quirk_mmap_enable(struct udmabuf_object* this)$/;"	f	file:
+udmabuf_set_quirk_mmap_mode	u-dma-buf.c	/^static inline int udmabuf_set_quirk_mmap_mode(struct udmabuf_object* this, int value)$/;"	f	file:
+udmabuf_static_device_create	u-dma-buf.c	/^static void udmabuf_static_device_create(const char* name, int id, unsigned int size)$/;"	f	file:
+udmabuf_static_device_create_all	u-dma-buf.c	/^static int udmabuf_static_device_create_all(void)$/;"	f	file:
+udmabuf_static_device_reserve_minor_number_all	u-dma-buf.c	/^static void udmabuf_static_device_reserve_minor_number_all(void)$/;"	f	file:
+udmabuf_static_parent_device	u-dma-buf.c	/^static struct device* udmabuf_static_parent_device = NULL;$/;"	v	typeref:struct:device	file:
+udmabuf_static_parse_bind	u-dma-buf.c	/^static int udmabuf_static_parse_bind(char* bind, struct bus_type** bus_type, char** device_name)$/;"	f	file:
+udmabuf_sync_command_argments	u-dma-buf.c	/^static int udmabuf_sync_command_argments($/;"	f	file:
+udmabuf_sync_for_cpu	u-dma-buf.c	/^static int udmabuf_sync_for_cpu(struct udmabuf_object* this)$/;"	f	file:
+udmabuf_sync_for_device	u-dma-buf.c	/^static int udmabuf_sync_for_device(struct udmabuf_object* this)$/;"	f	file:
+udmabuf_sys_class	u-dma-buf.c	/^static struct class*  udmabuf_sys_class = NULL;$/;"	v	typeref:struct:class	file:
+udmabuf_sys_class_set_attributes	u-dma-buf.c	/^static inline void udmabuf_sys_class_set_attributes(void)$/;"	f	file:
+version	u-dma-buf-ioctl.h	/^    char     version[16];$/;"	m	struct:__anon1
+version	u-dma-buf.c	/^    char     version[16];$/;"	m	struct:__anon6	file:
+virt_addr	u-dma-buf.c	/^    void*                virt_addr;$/;"	m	struct:udmabuf_object	file:
+vm_flags_mod	u-dma-buf.c	/^static inline void vm_flags_mod(struct vm_area_struct* vma, vm_flags_t set, vm_flags_t clear)$/;"	f	file:
+vm_flags_set	u-dma-buf.c	/^static inline void vm_flags_set(struct vm_area_struct* vma, vm_flags_t flags)$/;"	f	file:

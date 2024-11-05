@@ -70,7 +70,7 @@ make all
 else
 mkdir contig_mem
 cd contig_mem
-cp -r /proj/work/dmohapatra/contig_mem/udmabuf ./
+git clone git@github.com:tsisw/udmabuf.git
 cd udmabuf
 make clean
 make all
@@ -265,6 +265,6 @@ TODO Items:
 - Investigate the usage of device tree and reserved memory and configuring 
   those to be available for DMA apis and the udmabuf module/driver. We are
   already using reserved memory in the FPGA setup using device tree 
-  specifications. (if needed)
+  specifications.
 - In tree compilation of the module as opposed to out-of-tree compilation.
   (if needed) 
