@@ -1545,7 +1545,7 @@ static long udmabuf_device_file_ioctl(struct file* file, unsigned int cmd, unsig
             SET_U_DMA_BUF_IOCTL_FLAGS_USE_OF_RESERVED_MEM(&drv_info, USE_OF_RESERVED_MEM);
             SET_U_DMA_BUF_IOCTL_FLAGS_USE_QUIRK_MMAP     (&drv_info, USE_QUIRK_MMAP);
             SET_U_DMA_BUF_IOCTL_FLAGS_USE_QUIRK_MMAP_PAGE(&drv_info, USE_QUIRK_MMAP_PAGE);
-            strlcpy(&drv_info.version[0], DRIVER_VERSION, sizeof(drv_info.version));
+            strncpy(&drv_info.version[0], DRIVER_VERSION, sizeof(drv_info.version));
             if (copy_to_user(argp, &drv_info, sizeof(drv_info)) != 0)
                 result = -EFAULT;
             else 
@@ -3274,7 +3274,7 @@ static int udmabuf_platform_driver_probe(struct platform_device *pdev)
  *
  * Unregister the device after releasing the resources.
  */
-static int udmabuf_platform_driver_remove(struct platform_device *pdev)
+static void udmabuf_platform_driver_remove(struct platform_device *pdev)
 {
     struct udmabuf_object* this   = dev_get_drvdata(&pdev->dev);
     int                    retval = 0;
@@ -3288,7 +3288,6 @@ static int udmabuf_platform_driver_remove(struct platform_device *pdev)
     } else if (info_enable) {
         dev_info(&pdev->dev, "driver removed.\n");
     }
-    return retval;
 }
 
 /**
