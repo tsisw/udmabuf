@@ -5,7 +5,7 @@
                 service_reserved1: svcbuffer@1 {
                     compatible = "shared-dma-pool";
                     no-map;
-                    reg = <0x0 0x80000000 0x0 0x40000000>;
+                    reg = <0x0 0xBFC00000 0x0 0x400000>;
                     alignment = <0x1000>;
                 };
                 service_reserved2: svcbuffer@2 {
@@ -18,7 +18,7 @@
         udmabuf@0 {
             compatible = "ikwzm,u-dma-buf";
             device-name = "udmabuf0";
-            size = <0x40000000>; // 1GiB
+            size = <0x400000>; // 4MB
             memory-region = <&service_reserved1>;
         };
         udmabuf@1 {
