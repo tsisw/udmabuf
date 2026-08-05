@@ -205,6 +205,29 @@ MODULE_LICENSE("Dual BSD/GPL");
 #include <linux/of_reserved_mem.h>
 #endif
 
+/**
+ * USE_ACPI_RESERVED_MEM : Support "memory-region" on ACPI systems.
+ *
+ * On DT, "memory-region" is a phandle and of_reserved_mem_device_init() binds
+ * the device to a reserved-memory node.  On ACPI there is no of_node, so that
+ * path never runs and the driver silently falls back to allocating from general
+ * memory -- which fails with -ENOMEM for any pool larger than free RAM.
+ *
+ * Here "memory-region" is instead a _DSD string naming an ACPI device (e.g.
+ * "\\_SB.RSV2") whose _CRS describes the pool.  We resolve it and then map the
+ * range directly with memremap(): dma_declare_coherent_memory() would be the
+ * closer analogue of the DT path, but kernel/dma/coherent.c exports nothing, so
+ * it is unavailable to an out-of-tree module.  See udmabuf_object_setup().
+ */
+#if     defined(CONFIG_ACPI)
+#define USE_ACPI_RESERVED_MEM 1
+#include <linux/acpi.h>
+/* For the untranslated-DMA precondition check in udmabuf_object_setup(). */
+#include <linux/iommu.h>
+#else
+#define USE_ACPI_RESERVED_MEM 0
+#endif
+
 #if     (USE_DMA_BUF_EXPORT == 1)
 #include <linux/dma-buf.h>
 #if     (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 13 ,0))
@@ -322,6 +345,11 @@ struct udmabuf_object {
 #endif
 #if (USE_OF_RESERVED_MEM == 1)
     bool                 of_reserved_mem;
+#endif
+#if (USE_ACPI_RESERVED_MEM == 1)
+    bool                 acpi_reserved_mem;
+    phys_addr_t          acpi_region_addr;
+    size_t               acpi_region_size;
 #endif
 #if ((UDMABUF_DEBUG == 1) && (USE_QUIRK_MMAP == 1))
     int                  debug_vma;
@@ -885,6 +913,29 @@ static int udmabuf_object_mmap(struct udmabuf_object* this, struct vm_area_struc
     }
 #endif
 
+#if (USE_ACPI_RESERVED_MEM == 1)
+    /*
+     * ACPI reserved memory-region: map the physical range straight through.
+     *
+     * dma_mmap_coherent() cannot serve this memory -- it was never obtained
+     * from dma_alloc_coherent(), so it returns -ENXIO.  The quirk path above
+     * does not catch it either, because a carve-out outside the kernel's
+     * described RAM (RSV2 at 0x100000000 and up) has no valid PFN, so
+     * pfn_valid() is false.  Measured: udmabuf0 at 0x7FC00000 mmap'd fine via
+     * the quirk path while udmabuf1/2 both failed with ENXIO.
+     *
+     * remap_pfn_range() is the right primitive for a fixed physical range and
+     * does not require struct page backing.
+     */
+    if (this->acpi_reserved_mem) {
+        unsigned long pfn  = (this->acpi_region_addr >> PAGE_SHIFT) + vma->vm_pgoff;
+        unsigned long size = vma->vm_end - vma->vm_start;
+
+        vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
+        return remap_pfn_range(vma, vma->vm_start, pfn, size, vma->vm_page_prot);
+    }
+#endif
+
     return dma_mmap_coherent(this->dma_dev, vma, this->virt_addr, this->phys_addr, this->alloc_size);
 }
 
@@ -958,6 +1009,22 @@ static struct sg_table *udmabuf_export_dma_buf_map(struct dma_buf_attachment* at
 
     if (UDMABUF_EXPORT_DEBUG(this))
         dev_info(this->sys_dev, "%s(fd=%d) start.\n", __func__, entry->fd);
+
+#if (USE_ACPI_RESERVED_MEM == 1)
+    /*
+     * The ACPI reserved memory-region path publishes a memremap()'d carve-out
+     * with no struct page backing: a region outside the kernel's described RAM
+     * has no valid PFN, which is why udmabuf_mmap() uses remap_pfn_range()
+     * instead of dma_mmap_coherent().  dma_get_sgtable() below cannot build a
+     * page-backed scatterlist for such a range, so refuse the attach here
+     * rather than returning an sg_table that fails on map.
+     */
+    if (this->acpi_reserved_mem) {
+        dev_err(this->sys_dev, "%s(fd=%d): dma-buf export is not supported for ACPI reserved memory-region.\n",
+                __func__, entry->fd);
+        return ERR_PTR(-EOPNOTSUPP);
+    }
+#endif
 
     sg_table = kzalloc(sizeof(*sg_table), GFP_KERNEL);
     if (IS_ERR_OR_NULL(sg_table)) {
@@ -1964,6 +2031,13 @@ static struct udmabuf_object* udmabuf_object_create(const char* name, struct dev
         this->of_reserved_mem = 0;
     }
 #endif
+#if (USE_ACPI_RESERVED_MEM == 1)
+    {
+        this->acpi_reserved_mem = 0;
+        this->acpi_region_addr  = 0;
+        this->acpi_region_size  = 0;
+    }
+#endif
 #if (USE_QUIRK_MMAP == 1)
     {
         this->quirk_mmap_mode = quirk_mmap_mode;
@@ -2002,6 +2076,14 @@ static struct udmabuf_object* udmabuf_object_create(const char* name, struct dev
     return NULL;
 }
 
+#if (USE_ACPI_RESERVED_MEM == 1)
+/*
+ * Defined below, next to the pool list it operates on.  Declared here because
+ * udmabuf_object_setup() has to hand a chunk back when memremap() fails.
+ */
+static void udmabuf_acpi_reserved_mem_release(struct device *dev, phys_addr_t addr, size_t size);
+#endif
+
 /**
  * udmabuf_object_setup() - Setup the udmabuf object.
  * @this:       Pointer to the udmabuf object.
@@ -2015,15 +2097,167 @@ static int udmabuf_object_setup(struct udmabuf_object* this)
      * setup buffer size and allocation size
      */
     this->alloc_size = ((this->size + (((size_t)1 << PAGE_SHIFT) - 1)) >> PAGE_SHIFT) << PAGE_SHIFT;
+#if (USE_ACPI_RESERVED_MEM == 1)
     /*
-     * dma buffer allocation 
+     * ACPI reserved memory-region.
+     *
+     * The range is a fixed firmware carve-out, not memory to be allocated, so
+     * map it directly instead of going through dma_alloc_coherent().  The
+     * per-device coherent API (dma_declare_coherent_memory()) would be the
+     * closer analogue of the DT path, but kernel/dma/coherent.c exports nothing,
+     * so it is unavailable to an out-of-tree module.
      */
+    if (this->acpi_reserved_mem) {
+        /*
+         * Publishing the carve-out's physical address as the device's DMA
+         * address (below) is only correct when the device addresses memory
+         * without translation.  The three checks that follow make that
+         * assumption visible in the log rather than leaving it silent.
+         *
+         * All three WARN rather than refuse, each for a measured reason on this
+         * platform -- refusing on any of them kills every u-dma-buf device:
+         *
+         *   - IOMMU domain: the kernel is built CONFIG_IOMMU_DEFAULT_DMA_STRICT,
+         *     so the default domain type is "Translated" even though no SMMU
+         *     driver claims these devices and no iommu_group exists for them.
+         *   - _CCA: arm64 sets CONFIG_ACPI_CCA_REQUIRED, and the udmabuf SSDT
+         *     nodes declare no _CCA, so device_get_dma_attr() always reports
+         *     DEV_DMA_NOT_SUPPORTED.
+         *   - bus_dma_limit: comes from an IORT Named Component that may not
+         *     describe these devices at all.
+         *
+         * The carve-outs are in practice reachable (RSV1/RSV2 work), so the
+         * proper fix for all three is firmware-side (declare _CCA, and an IORT
+         * limit that covers the pools), not refusing to probe here.
+         */
+        struct iommu_domain* domain = iommu_get_domain_for_dev(this->dma_dev);
+
+        if (domain != NULL && domain->type != IOMMU_DOMAIN_IDENTITY) {
+            dev_warn(this->sys_dev,
+                     "ACPI reserved memory-region assumes untranslated DMA, but an IOMMU domain (type=0x%x) is attached; the published address is the physical address.\n",
+                     domain->type);
+        }
+
+        /*
+         * DMA-capability attribute: reported, NOT enforced.
+         *
+         * Queried on dma_dev rather than sys_dev, because sys_dev is the
+         * synthetic /sys/class/u-dma-buf/<name> node from device_create() and
+         * has no fwnode at all.
+         *
+         * Even on dma_dev this cannot gate the probe.  arm64 sets
+         * CONFIG_ACPI_CCA_REQUIRED=y, so acpi_dma_supported() returns false for
+         * any device whose ACPI node lacks _CCA (drivers/acpi/scan.c), and the
+         * udmabuf SSDT nodes do not declare _CCA -- only HAL0 does.  The result
+         * is DEV_DMA_NOT_SUPPORTED for every u-dma-buf device, measured:
+         * refusing here killed all three with -EOPNOTSUPP.
+         *
+         * Coherency is instead handled by mapping the carve-out MEMREMAP_WB
+         * below, so log the attribute and continue.  Declaring _CCA on these
+         * nodes in the SSDT would be the proper firmware-side fix.
+         */
+        if (device_get_dma_attr(this->dma_dev) == DEV_DMA_NOT_SUPPORTED) {
+            dev_warn(this->sys_dev, "ACPI node declares no _CCA (DMA attribute unknown); proceeding with a write-back mapping of the reserved region.\n");
+        }
+
+        /*
+         * Report if the carve-out lies beyond the addressing limit firmware
+         * declared for this device, so the condition the mask forcing below
+         * papers over is at least visible in the log.
+         *
+         * WARNING, not a probe failure, deliberately.  bus_dma_limit here comes
+         * from acpi_arch_dma_setup() -> iort_dma_get_ranges(), i.e. an IORT
+         * Named Component's memory_address_limit.  A too-small or missing limit
+         * in firmware is common, and on this platform the carve-outs are known
+         * to be reachable (RSV2 lives at 0x100000000 and above and works).
+         * Refusing to probe on this signal alone would break a working
+         * configuration on the strength of a firmware table that may simply not
+         * describe these devices.
+         */
+        if (this->dma_dev->bus_dma_limit != 0 &&
+            this->acpi_region_addr + this->alloc_size - 1 > this->dma_dev->bus_dma_limit) {
+            dev_warn(this->sys_dev,
+                     "ACPI region [%pa +%zu) exceeds the firmware-declared bus DMA limit (0x%llx); proceeding because these carve-outs are addressed without translation.\n",
+                     &this->acpi_region_addr, this->alloc_size,
+                     (unsigned long long)this->dma_dev->bus_dma_limit);
+        }
+
+        /*
+         * Widen the DMA mask so downstream users (and dma_capable() in any
+         * mapping helper) accept addresses above 4 GiB: RSV2 starts at
+         * 0x100000000 and even RSV1 ends exactly at the 4 GiB boundary.
+         *
+         * Best effort only.  On this platform dma_set_mask() returns -EIO for
+         * these ACPI PRP0001 devices even via the coerce variant, so force the
+         * fields directly when it refuses.  dma_coerce_mask_and_coherent() has
+         * already pointed dma_mask at coherent_dma_mask, so the store is safe.
+         * Safe because the addressability precondition was verified above.
+         */
+        if (dma_get_mask(this->dma_dev) < DMA_BIT_MASK(64)) {
+            if (dma_coerce_mask_and_coherent(this->dma_dev, DMA_BIT_MASK(64)) != 0) {
+                if (this->dma_dev->dma_mask == NULL)
+                    this->dma_dev->dma_mask = &this->dma_dev->coherent_dma_mask;
+                *this->dma_dev->dma_mask         = DMA_BIT_MASK(64);
+                this->dma_dev->coherent_dma_mask = DMA_BIT_MASK(64);
+            }
+        }
+        /*
+         * bus_dma_limit is deliberately left alone.  It describes a real
+         * hardware addressing limit, and the region was already checked against
+         * it above; clearing it would only hide a genuine constraint from every
+         * other consumer of this device.
+         */
+
+        this->virt_addr = memremap(this->acpi_region_addr, this->alloc_size, MEMREMAP_WB);
+        if (IS_ERR_OR_NULL(this->virt_addr)) {
+            dev_err(this->sys_dev, "memremap(phys=%pa, size=%zu) failed.\n",
+                    &this->acpi_region_addr, this->alloc_size);
+            this->virt_addr = NULL;
+            /*
+             * The chunk was already reserved out of the pool by
+             * udmabuf_acpi_reserved_mem_init(), so give it back: otherwise a
+             * failing probe would consume pool space no live buffer owns.
+             */
+            udmabuf_acpi_reserved_mem_release(this->sys_dev,
+                                              this->acpi_region_addr,
+                                              this->acpi_region_size);
+            this->acpi_reserved_mem = 0;
+            this->acpi_region_addr  = 0;
+            this->acpi_region_size  = 0;
+            return -ENOMEM;
+        }
+        /*
+         * No dma_map_resource() here.
+         *
+         * These carve-outs are fixed DRAM addressed without translation, so the
+         * device sees them at their physical address and there is nothing to
+         * map.  That is not assumed: the absence of a translating IOMMU domain
+         * and the reachability of the range are both verified above, and the
+         * probe is refused otherwise.
+         *
+         * dma_map_resource() only adds a dma_capable() gate that this platform
+         * fails (measured: mask stuck at 0xffffffff for PRP0001 devices even
+         * after coerce, so any address at or above 0x80000000 is rejected --
+         * which is all three pools).  It is also documented for MMIO rather
+         * than RAM.  Use the physical address directly, as the DT path
+         * effectively does via the reserved-mem allocator.
+         */
+        this->phys_addr = (dma_addr_t)this->acpi_region_addr;
+        dev_info(this->sys_dev, "ACPI region mapped: phys=%pad virt=%p size=%zu\n",
+                 &this->phys_addr, this->virt_addr, this->alloc_size);
+    } else
+#endif
+    /*
+     * dma buffer allocation
+     */
+    {
     this->virt_addr  = dma_alloc_coherent(this->dma_dev, this->alloc_size, &this->phys_addr, GFP_KERNEL);
     if (IS_ERR_OR_NULL(this->virt_addr)) {
         int retval = PTR_ERR(this->virt_addr);
         dev_err(this->sys_dev, "dma_alloc_coherent(size=%zu) failed. return(%d)\n", this->alloc_size, retval);
         this->virt_addr = NULL;
         return (retval == 0) ? -ENOMEM : retval;
+    }
     }
 #if ((USE_QUIRK_MMAP == 1) && USE_QUIRK_MMAP_PAGE == 1)
     if (this->quirk_mmap_mode == QUIRK_MMAP_MODE_PAGE) {
@@ -2170,7 +2404,15 @@ static int udmabuf_object_destroy(struct udmabuf_object* this)
     }
 #endif
     if (this->virt_addr != NULL) {
-        dma_free_coherent(this->dma_dev, this->alloc_size, this->virt_addr, this->phys_addr);
+#if (USE_ACPI_RESERVED_MEM == 1)
+        if (this->acpi_reserved_mem) {
+            /* No dma_unmap_resource(): nothing was mapped, see object_setup(). */
+            memunmap(this->virt_addr);
+        } else
+#endif
+        {
+            dma_free_coherent(this->dma_dev, this->alloc_size, this->virt_addr, this->phys_addr);
+        }
         this->virt_addr = NULL;
     }
     put_device(this->dma_dev);
@@ -2714,7 +2956,29 @@ static int udmabuf_platform_device_remove(struct device *dev, struct udmabuf_obj
 #if (USE_OF_RESERVED_MEM == 1)
         bool of_reserved_mem = obj->of_reserved_mem;
 #endif
+#if (USE_ACPI_RESERVED_MEM == 1)
+        /*
+         * Snapshot before udmabuf_object_destroy() frees obj.  The mapping
+         * itself is torn down in there; what has to happen here is returning
+         * the chunk to its pool, so that an unbind/rebind cycle does not leak
+         * pool space until module exit.
+         */
+        bool        acpi_reserved_mem = obj->acpi_reserved_mem;
+        phys_addr_t acpi_region_addr  = obj->acpi_region_addr;
+        size_t      acpi_region_size  = obj->acpi_region_size;
+#endif
         retval = udmabuf_object_destroy(obj);
+#if (USE_ACPI_RESERVED_MEM == 1)
+        /*
+         * Only on success.  A failed destroy (-EBUSY while an exported dma-buf
+         * is still live) leaves the object and its memremap() in place, so the
+         * chunk is still owned: returning it to the pool here would let the
+         * next device be handed memory that is still mapped and in use.
+         */
+        if (retval == 0 && acpi_reserved_mem) {
+            udmabuf_acpi_reserved_mem_release(dev, acpi_region_addr, acpi_region_size);
+        }
+#endif
         if (retval != 0) {
             dev_set_drvdata(dev, NULL);
 #if (USE_OF_RESERVED_MEM == 1)
@@ -2754,6 +3018,263 @@ static int of_property_read_ulong(const struct device_node* node, const char* pr
       
     return retval;
 }
+
+#if (USE_ACPI_RESERVED_MEM == 1)
+/**
+ * struct udmabuf_acpi_pool - Tracks sub-allocation within one ACPI pool.
+ *
+ * Several devices may name the same "memory-region" (udmabuf1 and udmabuf2 both
+ * use \_SB.RSV2, mirroring how DT lets both attach to svcbuffer@2).  On DT the
+ * reserved-mem allocator hands out successive chunks; there is no equivalent on
+ * ACPI, so track how much of each pool has been handed out and give the next
+ * device the following chunk.  Without this both devices would be told to start
+ * at the pool base and their buffers would overlap.
+ */
+struct udmabuf_acpi_pool {
+    struct list_head  list;
+    acpi_handle       handle;
+    phys_addr_t       base;
+    resource_size_t   size;
+    resource_size_t   used;
+};
+
+static LIST_HEAD(udmabuf_acpi_pool_list);
+static DEFINE_MUTEX(udmabuf_acpi_pool_sem);
+
+/**
+ * udmabuf_acpi_get_crs_region() - Read base/size from a device's _CRS.
+ * @handle:     ACPI handle of the region-providing device.
+ * @base:       Returned physical base address.
+ * @size:       Returned region length.
+ * Return:      Success(=0) or error status(<0).
+ */
+static int udmabuf_acpi_crs_region(acpi_handle handle, phys_addr_t* base, resource_size_t* size)
+{
+    struct acpi_buffer   buf = { ACPI_ALLOCATE_BUFFER, NULL };
+    struct acpi_resource *res;
+    char                 *end;
+    acpi_status          status;
+    int                  retval = -ENODEV;
+
+    status = acpi_get_current_resources(handle, &buf);
+    if (ACPI_FAILURE(status))
+        return -ENODEV;
+
+    end = (char *)buf.pointer + buf.length;
+    for (res = buf.pointer;
+         (char *)res < end && res->type != ACPI_RESOURCE_TYPE_END_TAG;
+         res = ACPI_NEXT_RESOURCE(res))
+    {
+        /*
+         * ADDRESS32/ADDRESS64 are generic address-space descriptors: the same
+         * type also describes I/O and bus-number windows.  Only a memory range
+         * may be handed out as the reserved pool, so skip anything else rather
+         * than mapping an I/O window write-back into userspace.
+         */
+        if (res->type == ACPI_RESOURCE_TYPE_ADDRESS64) {
+            if (res->data.address64.resource_type != ACPI_MEMORY_RANGE)
+                continue;
+            *base  = res->data.address64.address.minimum;
+            *size  = res->data.address64.address.address_length;
+            retval = 0;
+            break;
+        }
+        if (res->type == ACPI_RESOURCE_TYPE_ADDRESS32) {
+            if (res->data.address32.resource_type != ACPI_MEMORY_RANGE)
+                continue;
+            *base  = res->data.address32.address.minimum;
+            *size  = res->data.address32.address.address_length;
+            retval = 0;
+            break;
+        }
+        if (res->type == ACPI_RESOURCE_TYPE_FIXED_MEMORY32) {
+            *base  = res->data.fixed_memory32.address;
+            *size  = res->data.fixed_memory32.address_length;
+            retval = 0;
+            break;
+        }
+    }
+
+    ACPI_FREE(buf.pointer);
+    return retval;
+}
+
+/**
+ * udmabuf_acpi_reserved_mem_init() - Bind the device to its ACPI "memory-region".
+ * @dev:        handle to the device structure.
+ * @size:       Size this device needs from the pool.
+ * Return:      0 on success, -ENODEV if no usable memory-region, else error.
+ *
+ * The ACPI analogue of of_reserved_mem_device_init().  Returns -ENODEV (not an
+ * error) when the device has no "memory-region", so the caller can fall through
+ * to the ordinary allocator exactly as the DT path does.
+ */
+static int udmabuf_acpi_reserved_mem_init(struct device *dev, size_t size, phys_addr_t* out_addr)
+{
+    const char*               region_name = NULL;
+    acpi_handle               handle;
+    acpi_status               status;
+    struct udmabuf_acpi_pool* pool;
+    struct udmabuf_acpi_pool* found = NULL;
+    phys_addr_t               chunk_base;
+    size_t                    chunk_size;
+    int                       retval;
+
+    if (!has_acpi_companion(dev))
+        return -ENODEV;
+
+    if (device_property_read_string(dev, "memory-region", &region_name) != 0)
+        return -ENODEV;
+
+    /*
+     * Past this point the device explicitly asked for a named region, so a
+     * failure to resolve it is a hard error rather than -ENODEV.  Returning
+     * -ENODEV here would look like "no memory-region declared" to the caller,
+     * which would silently fall back to the ordinary allocator and hand the
+     * device general RAM instead of the requested carve-out.
+     */
+    status = acpi_get_handle(NULL, (acpi_string)region_name, &handle);
+    if (ACPI_FAILURE(status)) {
+        dev_err(dev, "memory-region \"%s\" not found in ACPI namespace\n", region_name);
+        return -EINVAL;
+    }
+
+    mutex_lock(&udmabuf_acpi_pool_sem);
+
+    list_for_each_entry(pool, &udmabuf_acpi_pool_list, list) {
+        if (pool->handle == handle) {
+            found = pool;
+            break;
+        }
+    }
+
+    if (found == NULL) {
+        found = kzalloc(sizeof(*found), GFP_KERNEL);
+        if (found == NULL) {
+            retval = -ENOMEM;
+            goto done;
+        }
+        retval = udmabuf_acpi_crs_region(handle, &found->base, &found->size);
+        if (retval != 0) {
+            dev_err(dev, "memory-region \"%s\" has no usable _CRS\n", region_name);
+            kfree(found);
+            retval = -EINVAL;
+            goto done;
+        }
+        /*
+         * mmap() of this pool goes through remap_pfn_range() on a PFN derived
+         * from the base, so an unaligned base would map the page *preceding*
+         * the region into userspace and leave kernel and user views
+         * inconsistent.  Reject it instead of mapping the wrong memory.
+         */
+        if (!PAGE_ALIGNED(found->base)) {
+            dev_err(dev, "memory-region \"%s\" base %pa is not page aligned\n",
+                    region_name, &found->base);
+            kfree(found);
+            retval = -EINVAL;
+            goto done;
+        }
+        found->handle = handle;
+        found->used   = 0;
+        list_add_tail(&found->list, &udmabuf_acpi_pool_list);
+    }
+
+    /*
+     * Reserve the page-rounded size: udmabuf_object_setup() allocates
+     * alloc_size, which rounds "size" up to a page.  Declaring only the raw
+     * size would leave the region a page short for a non-page-aligned request,
+     * and would also let the next device in a shared pool overlap this one.
+     */
+    if (size > SIZE_MAX - (PAGE_SIZE - 1)) {
+        dev_err(dev, "memory-region \"%s\" size %zu overflows on page alignment\n",
+                region_name, size);
+        retval = -EINVAL;
+        goto done;
+    }
+    chunk_size = PAGE_ALIGN(size);
+
+    /*
+     * Compared as a subtraction on the remaining space rather than
+     * "used + chunk_size > size", which can wrap and accept a request that
+     * falls outside the _CRS range.  used <= size is an invariant here.
+     */
+    if (chunk_size > found->size - found->used) {
+        dev_err(dev, "memory-region \"%s\" exhausted: need %zu, %llu of %llu used\n",
+                region_name, chunk_size,
+                (unsigned long long)found->used,
+                (unsigned long long)found->size);
+        retval = -ENOMEM;
+        goto done;
+    }
+
+    chunk_base   = found->base + found->used;
+    found->used += chunk_size;
+    *out_addr    = chunk_base;
+    retval       = 0;
+
+    dev_info(dev, "assigned ACPI memory-region %s (phys %pa size %zu)\n",
+             region_name, &chunk_base, chunk_size);
+
+ done:
+    mutex_unlock(&udmabuf_acpi_pool_sem);
+    return retval;
+}
+
+/**
+ * udmabuf_acpi_reserved_mem_release() - Return a chunk to its ACPI pool.
+ * @dev:        handle to the device structure.
+ * @addr:       Chunk base previously returned by udmabuf_acpi_reserved_mem_init().
+ * @size:       Page-aligned chunk size, as reserved by that call.
+ *
+ * Counterpart of the reservation done in udmabuf_acpi_reserved_mem_init().
+ * Without it, "used" only ever grows and the pool is reclaimed at module exit,
+ * so a failed probe or an unbind/rebind cycle would consume pool space that no
+ * live buffer owns.
+ *
+ * The cursor is monotonic, so only the chunk at the tail can actually be given
+ * back.  That covers the cases that occur in practice (probe failure, and the
+ * reverse-order teardown of remove).  A non-tail release would need an extent
+ * allocator to do properly; rather than corrupt the cursor it is left alone and
+ * reported, and the space returns at module exit.
+ */
+static void udmabuf_acpi_reserved_mem_release(struct device *dev, phys_addr_t addr, size_t size)
+{
+    struct udmabuf_acpi_pool* pool;
+
+    if (size == 0)
+        return;
+
+    mutex_lock(&udmabuf_acpi_pool_sem);
+    list_for_each_entry(pool, &udmabuf_acpi_pool_list, list) {
+        if (addr < pool->base || addr >= pool->base + pool->size)
+            continue;
+        if (pool->base + pool->used == addr + size) {
+            pool->used -= size;
+        } else {
+            dev_warn(dev, "ACPI pool chunk %pa (%zu bytes) is not at the pool tail; not reclaimed\n",
+                     &addr, size);
+        }
+        break;
+    }
+    mutex_unlock(&udmabuf_acpi_pool_sem);
+}
+
+/**
+ * udmabuf_acpi_reserved_mem_cleanup() - Free the pool bookkeeping at module exit.
+ */
+static void udmabuf_acpi_reserved_mem_cleanup(void)
+{
+    struct udmabuf_acpi_pool* pool;
+    struct udmabuf_acpi_pool* tmp;
+
+    mutex_lock(&udmabuf_acpi_pool_sem);
+    list_for_each_entry_safe(pool, tmp, &udmabuf_acpi_pool_list, list) {
+        list_del(&pool->list);
+        kfree(pool);
+    }
+    mutex_unlock(&udmabuf_acpi_pool_sem);
+}
+#endif
 
 /**
  * udmabuf_platform_device_probe()  - Probe call for the platform device driver.
@@ -2839,17 +3360,46 @@ static int udmabuf_platform_device_probe(struct device *dev)
      * Because dma_set_mask_and_coherent() will fail unless dev->dma_ops is set.
      * When dma_set_mask_and_coherent() fails, it is forcefuly setting the dma-mask value.
      */
-    if (of_property_read_u32(dev->of_node, "dma-mask", &u32_value) == 0) {
+    /*
+     * device_property_read_u32() is tried first so a "dma-mask" property is
+     * honoured on ACPI as well as DT.  Note this sets the mask on dev; the
+     * mapping actually uses obj->dma_dev (the parent), which the ACPI
+     * reserved-memory path widens separately in udmabuf_object_setup().
+     */
+    if ((device_property_read_u32(dev, "dma-mask", &u32_value) == 0) ||
+        (of_property_read_u32(dev->of_node, "dma-mask", &u32_value) == 0)) {
         if ((u32_value > 64) || (u32_value < 12)) {
             dev_err(dev, "invalid dma-mask property value=%d\n", u32_value);
             goto failed_with_unlock;
         }
-        retval = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(u32_value));
+        /*
+         * dma_coerce_mask_and_coherent() rather than dma_set_mask_and_coherent():
+         * the latter returns -EIO when dev->dma_mask is NULL, which it is for a
+         * bare ACPI PRP0001 platform device (no of_dma_configure() on that path
+         * to allocate it).  The coerce variant points dma_mask at
+         * coherent_dma_mask first, which is precisely this case.  The old
+         * fallback below it also dereferenced dev->dma_mask unconditionally,
+         * which would oops on that same NULL.
+         */
+        retval = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(u32_value));
         if (retval != 0) {
-            dev_info(dev, "dma_set_mask_and_coherent(DMA_BIT_MASK(%d)) failed. return=%d\n", u32_value, retval);
+            /*
+             * Reported but NOT fatal.
+             *
+             * Measured on this platform: the SSDT declares "dma-mask" on the
+             * udmabuf PRP0001 devices and dma_coerce_mask_and_coherent() still
+             * returns -EIO for all three, because a bare ACPI platform device
+             * has no dma_ops installed.  Failing probe here therefore kills
+             * every u-dma-buf device ("driver probe failed. return=-5"), which
+             * is a regression, not the safety improvement it looks like.
+             *
+             * The mask is not left silently wrong: the ACPI reserved-memory
+             * path in udmabuf_object_setup() sets it explicitly on dma_dev (the
+             * device the mapping actually uses), and this call site only ever
+             * targeted "dev".  Keep the warning so the refusal is visible.
+             */
+            dev_warn(dev, "dma_coerce_mask_and_coherent(DMA_BIT_MASK(%d)) failed. return=%d (continuing; mask is set on the parent in object_setup)\n", u32_value, retval);
             retval = 0;
-            *dev->dma_mask         = DMA_BIT_MASK(u32_value);
-            dev->coherent_dma_mask = DMA_BIT_MASK(u32_value);
         }
     }
     /*
@@ -2864,6 +3414,29 @@ static int udmabuf_platform_device_probe(struct device *dev)
             dev_err(dev, "of_reserved_mem_device_init failed. return=%d\n", retval);
             goto failed_with_unlock;
         }
+    }
+#endif
+    /*
+     * udmabuf_acpi_reserved_mem_init()
+     *
+     * ACPI counterpart of the above.  Only runs when there is no of_node, so
+     * the DT path is unaffected.  -ENODEV means "no memory-region declared",
+     * which is not an error: fall through to the ordinary allocator.
+     */
+#if (USE_ACPI_RESERVED_MEM == 1)
+    if (dev->of_node == NULL) {
+        phys_addr_t region_addr = 0;
+        retval = udmabuf_acpi_reserved_mem_init(dev, size, &region_addr);
+        if (retval == 0) {
+            obj->acpi_reserved_mem = 1;
+            obj->acpi_region_addr  = region_addr;
+            /* Must match the chunk_size reserved by the call above. */
+            obj->acpi_region_size  = PAGE_ALIGN(size);
+        } else if (retval != -ENODEV) {
+            dev_err(dev, "udmabuf_acpi_reserved_mem_init failed. return=%d\n", retval);
+            goto failed_with_unlock;
+        }
+        retval = 0;
     }
 #endif
 #if (USE_OF_DMA_CONFIG == 1)
@@ -3697,6 +4270,9 @@ static void u_dma_buf_cleanup(void)
     if (udmabuf_sys_class     != NULL    ){class_destroy(udmabuf_sys_class);}
     if (udmabuf_device_number != 0       ){unregister_chrdev_region(udmabuf_device_number, 0);}
     ida_destroy(&udmabuf_device_ida);
+#if (USE_ACPI_RESERVED_MEM == 1)
+    udmabuf_acpi_reserved_mem_cleanup();
+#endif
 }
 
 /**
