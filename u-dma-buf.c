@@ -3507,8 +3507,12 @@ static int udmabuf_platform_device_probe(struct device *dev)
 #endif
     /*
      * sync-mode property
+     *
+     * Read with device_property_read_*() rather than of_property_read_*() so
+     * the property also works for ACPI devices (a _DSD entry), which have no
+     * of_node. On DT the two read the same node.
      */
-    if (of_property_read_u32(dev->of_node, "sync-mode", &u32_value) == 0) {
+    if (device_property_read_u32(dev, "sync-mode", &u32_value) == 0) {
         if ((u32_value < SYNC_MODE_MIN) || (u32_value > SYNC_MODE_MAX)) {
             dev_err(dev, "invalid sync-mode property value=%d\n", u32_value);
             goto failed_with_unlock;
@@ -3518,8 +3522,11 @@ static int udmabuf_platform_device_probe(struct device *dev)
     }
     /*
      * sync-always property
+     *
+     * A presence property: on DT a boolean, on ACPI any _DSD entry named
+     * sync-always (the value is not read).
      */
-    if (of_property_read_bool(dev->of_node, "sync-always")) {
+    if (device_property_read_bool(dev, "sync-always")) {
         obj->sync_mode |= SYNC_ALWAYS;
     }
     /*
